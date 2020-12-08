@@ -12,7 +12,6 @@ namespace Application.Common.Services
     {
         Task<Agent> CreateAsync(CreateAgentCommand command);
         Task<bool> AddAgentToAgency(AddAgentToAgencyCommand command);
-        Task<IEnumerable<Agent>> GetAll();
         Task<Agent> GetById(Guid Id);
         Task<PagedResponse<IEnumerable<Agent>>> FilterAsync(PaginationFilter filter);
     }

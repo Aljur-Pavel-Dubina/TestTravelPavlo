@@ -1,6 +1,8 @@
 ﻿using Application.Common.Interfaces;
 using Domain.Entities;
 using Infractructure.BulkData;
+using Infractructure.Dapper;
+using Infractructure.Dapper.Repositories;
 using Infractructure.Persistence;
 using Infractructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -14,10 +16,15 @@ namespace Infractructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services,
             IConfiguration configuration)
         {
+            //services.AddDbContext<ApplicationDbContext>(options =>
+            //    options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
-            services.AddTransient(typeof(IRepository<>), typeof(TravelRepository<>));
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             services.AddTransient(typeof(IBulkImport<Agency>), typeof(AgencyBulkImport));
+            services.AddTransient(typeof(ConnectionService));
+
+            services.AddTransient<IAgentRepository, AgentRepository>();
+            services.AddTransient<IAgencyRepository, AgencyRepository>();
 
             return services;
         }

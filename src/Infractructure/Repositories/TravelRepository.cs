@@ -1,13 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.AccessControl;
-using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Security;
-using System.Security.Permissions;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
@@ -17,10 +10,11 @@ using Infractructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Application.Common.Extensions;
 using Domain.Paging;
+using Application.Common.Exceptions;
 
 namespace Infractructure.Repositories
 {
-    public class TravelRepository<T> : IRepository<T> where T: class
+    public class TravelRepository<T> : IRepository<T, Guid> where T: class
     {
         private readonly DbSet<T> _dbSet;
         private readonly ApplicationDbContext _context;
@@ -36,9 +30,13 @@ namespace Infractructure.Repositories
             return _dbSet.AsNoTracking();
         }
 
-        public virtual IEnumerable<T> FindBy(Expression<Func<T, bool>> predicate)
+        public virtual T FindById(Guid id)
         {
-            return _dbSet.Where(predicate);
+            var findResult = _dbSet.Find(id);
+            if (findResult == null)
+                throw new NotFoundException<Guid>(nameof(T), id);
+
+            return findResult;
         }
 
         public async Task<T> CreateRecordAsync(T record, CancellationToken cancellationToken = default)

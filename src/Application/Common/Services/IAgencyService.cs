@@ -10,7 +10,6 @@ namespace Application.Common.Services
 {
     public interface IAgencyService
     {
-        Task<IEnumerable<Agency>> GetAll();
         Task<Agency> CreateAsync(CreateAgencyCommand command);
         Task<Agency> GetById(Guid Id);
         Task<PagedResponse<IEnumerable<Agency>>> FilterAsync(PaginationFilter filter);

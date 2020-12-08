@@ -10,16 +10,15 @@ using Domain.Commands.AgencyCommands;
 using Domain.Entities;
 using Domain.Paging.Filters;
 using Domain.Wrappers;
-using Microsoft.EntityFrameworkCore;
 
 namespace Services
 {
     public class AgencyService : IAgencyService
     {
-        private readonly IRepository<Agency> _agencyRepository;
+        private readonly IAgencyRepository _agencyRepository;
         private readonly IMapper _mapper;
 
-        public AgencyService(IRepository<Agency> agencyRepository,
+        public AgencyService(IAgencyRepository agencyRepository,
             IMapper mapper)
         {
             _agencyRepository = agencyRepository;
@@ -33,26 +32,15 @@ namespace Services
                 throw new ArgumentNullException(nameof(command));
             }
             var agency = _mapper.Map<Agency>(command);
-            var result = await _agencyRepository.CreateRecordAsync(agency);
+            var result = await _agencyRepository.Create(agency);
             return result;
-        }
-
-        public async Task<IEnumerable<Agency>> GetAll()
-        {
-            return  _agencyRepository.GetAll()
-                .AsQueryable()
-                .Include(_ => _.Agents)
-                .ToList();
         }
 
         public async Task<Agency> GetById(Guid id)
         {
             if (id == Guid.Empty)
                 throw new ArgumentException(nameof(id));
-            var agency = _agencyRepository.FindBy(_ => _.Id == id)
-                .AsQueryable()
-                .Include(_ => _.Agents)
-                .FirstOrDefault();
+            var agency = await _agencyRepository.GetById(id);
             if (agency == null)
                 throw new NotFoundException<Guid>(nameof(Agency), id);
 
@@ -66,7 +54,7 @@ namespace Services
                 throw  new ArgumentNullException(nameof(filter));
             }
 
-            return _agencyRepository.PaginationAsync(filter);
+            return await _agencyRepository.PaginationAsync(filter);
         }
     }
 }
